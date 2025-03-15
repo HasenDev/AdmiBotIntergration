@@ -1,0 +1,32 @@
+# actions.yml
+# Define your custom actions here.
+# The key is the action name (all lowercase) and the value is the command to run.
+# Use {param} as a placeholder for the parameter. When executing the action, the parameter will replace {param}.
+
+# Example Custom Actions:
+# The following examples show how to create custom actions for the Minecraft server.
+
+# Action: heal
+# When you execute this action, it will clear the effects of the specified player (parameter).
+heal: "effect clear {param}"
+
+# Action: feed
+# When you execute this action, it will give the player the saturation effect for 5 seconds (parameter).
+feed: "effect give {param} minecraft:saturation 5 1 true"
+
+# Action: broadcastcustom
+# When you execute this action, it will broadcast a custom message to all players on the server.
+# You can use any message as a parameter.
+broadcastcustom: "say [Custom] {param}"
+
+# How to Use:
+# 1. To add a new custom action, simply define a key-value pair.
+#    - Key is the action name (in lowercase).
+#    - Value is the command you want to run when the action is triggered, with {param} being the placeholder for the argument.
+
+# 2. Example command to execute:
+#    - /minecraft customaction <Server Name> <Action: heal> <parameter: playername>
+#    - This would run the command: effect clear playername
+#    - The parameter "playername" replaces {param} in the action definition.
+
+# IMPORTANT: Always make sure the parameter is valid for the command you're executing.

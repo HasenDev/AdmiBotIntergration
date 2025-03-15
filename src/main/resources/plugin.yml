@@ -1,0 +1,8 @@
+name: AdmiBotIntegration
+version: '${project.version}'
+main: xyz.admibot.AdmiBotIntegration
+api-version: '1.16'
+commands:
+  admibot:
+    description: Admibot command interface
+    usage: /admibot <help|status|ping>
