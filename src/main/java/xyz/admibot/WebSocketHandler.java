@@ -1,20 +1,15 @@
 package xyz.admibot;
-
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.json.JSONObject;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
-
 public class WebSocketHandler extends WebSocketClient {
-
-    // Variables
     private static final int INITIAL_RECONNECT_DELAY = 5000; 
     private static final int MAX_RECONNECT_DELAY = 60000;
     private static final int MAX_RECONNECT_ATTEMPTS = 10;
@@ -24,18 +19,15 @@ public class WebSocketHandler extends WebSocketClient {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private int reconnectAttempts = 0;
     private long currentReconnectDelay = INITIAL_RECONNECT_DELAY;
-
     public WebSocketHandler(String uri, String secureKey) throws Exception {
         super(new URI(uri), getHeaders(secureKey));
         this.secureKey = secureKey;
     }
-
     private static Map<String, String> getHeaders(String secureKey) {
         Map<String, String> headers = new HashMap<>();
         headers.put("X-Admibot-Key", secureKey);
         return headers;
     }
-
     @Override
     public void onOpen(ServerHandshake handshakeData) {
         logger.info("Connected to AdmiBot WebSocket.");
@@ -43,14 +35,12 @@ public class WebSocketHandler extends WebSocketClient {
         currentReconnectDelay = INITIAL_RECONNECT_DELAY;
         authenticate();
     }
-
     private void authenticate() {
         JSONObject auth = new JSONObject();
         auth.put("action", "authenticate");
         auth.put("key", secureKey);
         send(auth.toString());
     }
-
     @Override
     public void onMessage(String message) {
         try {
@@ -61,9 +51,6 @@ public class WebSocketHandler extends WebSocketClient {
             logger.warning("Error parsing incoming message: " + e.getMessage());
         }
     }
-
-    // Function to handle all possible actions that can be trigered by AdmiBot.
-
     private void handleAction(String action, JSONObject json) {
         String correlationId = json.optString("correlation_id", "");
         switch (action) {
@@ -99,29 +86,15 @@ public class WebSocketHandler extends WebSocketClient {
                 handlePlayerCount(correlationId);
                 break;
             default:
-                // Process as custom action if not one of the known actions.
                 handleCustomAction(action, json, correlationId);
                 break;
         }
     }
-
-    /**
-     * Handles custom actions as defined in actions.yml.
-     * The action name (in lowercase) is used as the key in the actions configuration.
-     * The command associated with the action should include a placeholder "{param}" for substitution.
-     *
-     * @param action        The custom action name.
-     * @param json          The JSON payload.
-     * @param correlationId The correlation id for the response.
-     */
     private void handleCustomAction(String action, JSONObject json, String correlationId) {
-        // Ensure the JSON contains an 'action' field and it is not empty.
         if (action == null || action.trim().isEmpty()) {
             sendResponse("custom_action_response", "No custom action specified", correlationId);
             return;
         }
-
-        // Retrieve the parameter from the JSON payload.
         String parameter = "";
         if (json.has("parameters")) {
             JSONObject params = json.optJSONObject("parameters");
@@ -131,26 +104,18 @@ public class WebSocketHandler extends WebSocketClient {
         } else {
             parameter = json.optString("parameter", "").trim();
         }
-
-        // Retrieve the custom command template from actions.yml.
         String customCommand = AdmiBotIntegration.getInstance().getActionsConfig().getString(action, null);
         if (customCommand == null || customCommand.isEmpty()) {
             sendResponse(action + "_response", "Custom action " + action + " does not exist", correlationId);
             return;
         }
-
-        // Replace the {param} placeholder with the provided parameter.
         String commandToExecute = customCommand.replace("{param}", parameter);
         logger.info("[AdmiBot] Executing custom action: " + action + " -> " + commandToExecute);
-
-        // Check if the plugin is still enabled before scheduling the synchronous task.
         if (!AdmiBotIntegration.getInstance().isEnabled()) {
             logger.warning("[AdmiBot] Plugin is disabled; cannot execute custom action: " + action);
             sendResponse(action + "_response", "Plugin is disabled, custom action " + action + " was not executed", correlationId);
             return;
         }
-
-        // Execute the command synchronously on the main thread.
         try {
             Future<Boolean> future = Bukkit.getScheduler().callSyncMethod(
                     AdmiBotIntegration.getInstance(),
@@ -171,8 +136,6 @@ public class WebSocketHandler extends WebSocketClient {
 
         sendResponse(action + "_response", "Custom action " + action + " executed with parameter: " + parameter, correlationId);
     }
-
-    // Function used to handle Console commands.
     private void handleConsoleCommand(JSONObject json) {
         String cmd = "";
         JSONObject params = json.optJSONObject("parameters");
@@ -220,8 +183,6 @@ public class WebSocketHandler extends WebSocketClient {
         }
         send(response.toString());
     }
-
-    // Hnadle an upcoming feature.
     private void handleChatMessage(JSONObject json, String correlationId) {
         String chatMsg = json.optString("message", "").trim();
         if (!chatMsg.isEmpty()) {
@@ -229,8 +190,6 @@ public class WebSocketHandler extends WebSocketClient {
         }
         sendResponse("chat_message_response", chatMsg, correlationId);
     }
-
-    // Retrieve all players list.
     private void handlePlayersList(String correlationId) {
         StringBuilder playerList = new StringBuilder();
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -241,21 +200,17 @@ public class WebSocketHandler extends WebSocketClient {
         }
         sendResponse("players_list_response", playerList.toString(), correlationId);
     }
-
     private void handleServerStatus(String correlationId) {
         sendResponse("server_status_response", "Running", correlationId);
     }
-
     private void handleServerTime(String correlationId) {
         long currentTime = System.currentTimeMillis();
         sendResponse("server_time_response", String.valueOf(currentTime), correlationId);
     }
-
     private void handlePlayerCount(String correlationId) {
         int playerCount = Bukkit.getOnlinePlayers().size();
         sendResponse("player_count_response", String.valueOf(playerCount), correlationId);
     }
-
     private void sendResponse(String action, String output, String correlationId) {
         JSONObject response = new JSONObject();
         response.put("action", action);
@@ -265,17 +220,14 @@ public class WebSocketHandler extends WebSocketClient {
         }
         send(response.toString());
     }
-
     @Override
     public void onClose(int code, String reason, boolean remote) {
         scheduleReconnect();
     }
-
     @Override
     public void onError(Exception ex) {
         scheduleReconnect();
     }
-
     private void scheduleReconnect() {
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) return;
         reconnectAttempts++;
