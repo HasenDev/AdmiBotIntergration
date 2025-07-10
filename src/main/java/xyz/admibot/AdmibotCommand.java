@@ -8,22 +8,18 @@ public class AdmibotCommand implements CommandExecutor {
     private static final String PREFIX = ChatColor.WHITE + "[" + ChatColor.AQUA + "Admi" + ChatColor.DARK_AQUA + "Bot" + ChatColor.WHITE + "] " + ChatColor.RESET;
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // /admibot or /admibot help shows help.
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
             sendHelpMessage(sender);
             return true;
         }
-        // /admibot status returns WebSocket status and secure key.
         if (args[0].equalsIgnoreCase("status")) {
             showStatus(sender);
             return true;
         }
-        // /admibot ping responds with a simple pong.
         if (args[0].equalsIgnoreCase("ping")) {
             sender.sendMessage(PREFIX + ChatColor.GREEN + "Pong!");
             return true;
         }
-        // /admibot guide shows the user a link to the guide.
         if (args[0].equalsIgnoreCase("guide")) {
             sendGuide(sender);
             return true;
@@ -51,13 +47,11 @@ public class AdmibotCommand implements CommandExecutor {
         sender.sendMessage(ChatColor.YELLOW + "https://docs.admibot.xyz/minecraft-link/introduction");
         sender.sendMessage(ChatColor.GRAY + "This guide will help you understand all features and configurations of the plugin.");
     }
-    // Helper method to format the uptime in a readable format (e.g., "1 day, 3 hours, 25 minutes").
     private String formatUptime(long uptimeMillis) {
         long seconds = uptimeMillis / 1000;
         long minutes = seconds / 60;
         long hours = minutes / 60;
         long days = hours / 24;
-
         return String.format("%d day(s), %d hour(s), %d minute(s)", days, hours % 24, minutes % 60);
     }
 }
