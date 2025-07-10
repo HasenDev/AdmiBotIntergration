@@ -14,11 +14,11 @@ import java.util.logging.Logger;
 
 public class WebSocketHandler extends WebSocketClient {
 
+    // Variables
     private static final int INITIAL_RECONNECT_DELAY = 5000; 
     private static final int MAX_RECONNECT_DELAY = 60000;
     private static final int MAX_RECONNECT_ATTEMPTS = 10;
     private static final long COMMAND_TIMEOUT_MS = 4000;
-
     private final String secureKey;
     private final Logger logger = AdmiBotIntegration.getInstance().getLogger();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -61,6 +61,8 @@ public class WebSocketHandler extends WebSocketClient {
             logger.warning("Error parsing incoming message: " + e.getMessage());
         }
     }
+
+    // Function to handle all possible actions that can be trigered by AdmiBot.
 
     private void handleAction(String action, JSONObject json) {
         String correlationId = json.optString("correlation_id", "");
@@ -170,6 +172,7 @@ public class WebSocketHandler extends WebSocketClient {
         sendResponse(action + "_response", "Custom action " + action + " executed with parameter: " + parameter, correlationId);
     }
 
+    // Function used to handle Console commands.
     private void handleConsoleCommand(JSONObject json) {
         String cmd = "";
         JSONObject params = json.optJSONObject("parameters");
@@ -218,6 +221,7 @@ public class WebSocketHandler extends WebSocketClient {
         send(response.toString());
     }
 
+    // Hnadle an upcoming feature.
     private void handleChatMessage(JSONObject json, String correlationId) {
         String chatMsg = json.optString("message", "").trim();
         if (!chatMsg.isEmpty()) {
@@ -226,13 +230,14 @@ public class WebSocketHandler extends WebSocketClient {
         sendResponse("chat_message_response", chatMsg, correlationId);
     }
 
+    // Retrieve all players list.
     private void handlePlayersList(String correlationId) {
         StringBuilder playerList = new StringBuilder();
         for (Player player : Bukkit.getOnlinePlayers()) {
             playerList.append(player.getName()).append(", ");
         }
         if (playerList.length() > 0) {
-            playerList.setLength(playerList.length() - 2);  // Remove trailing comma.
+            playerList.setLength(playerList.length() - 2);
         }
         sendResponse("players_list_response", playerList.toString(), correlationId);
     }
