@@ -2,12 +2,9 @@ package xyz.admibot;
 
 import java.security.SecureRandom;
 public class KeyGenerator {
-    // Variables for the secret key.
     private static final String PREFIX = "Mcw.";
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int RANDOM_LENGTH = 10;
-
-    // Key generation function.
     public static String generateKey() {
         SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder(PREFIX);
