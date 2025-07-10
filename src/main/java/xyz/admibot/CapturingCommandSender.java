@@ -9,140 +9,112 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Set;
 import java.util.UUID;
-
 public class CapturingCommandSender implements CommandSender {
     private final ConsoleCommandSender consoleSender;
     private final ByteArrayOutputStream outputStream;
     private final PrintStream printStream;
     private String output;
-
     public CapturingCommandSender(ConsoleCommandSender consoleSender) {
         this.consoleSender = consoleSender;
         this.outputStream = new ByteArrayOutputStream();
         this.printStream = new PrintStream(outputStream);
         this.output = "";
     }
-
     @Override
     public void sendMessage(String message) {
-        // Capture the output sent to the console
-        printStream.println(message);  // Use printStream to capture the message
+        printStream.println(message);
     }
-
     @Override
     public void sendMessage(@NotNull String[] messages) {
         for (String message : messages) {
             sendMessage(message);
         }
     }
-
     @Override
     public void sendMessage(@Nullable UUID uuid, @NotNull String message) {
-        sendMessage(message); // For UUID-based messages, just send the message
+        sendMessage(message);
     }
-
     @Override
     public void sendMessage(@Nullable UUID uuid, @NotNull String[] messages) {
         for (String message : messages) {
             sendMessage(uuid, message);
         }
     }
-
     @Override
     public @NotNull Server getServer() {
-        return consoleSender.getServer();  // Return the server from the console sender
+        return consoleSender.getServer();
     }
-
     @Override
     public String getName() {
-        return consoleSender.getName();  // Get the name of the console sender
+        return consoleSender.getName();
     }
-
     @Override
     public @NotNull Spigot spigot() {
-        return consoleSender.spigot();  // Get the Spigot API object from the console sender
+        return consoleSender.spigot();
     }
-
     @Override
     public boolean isOp() {
-        return consoleSender.isOp();  // Check if the console sender has operator status
+        return consoleSender.isOp(); 
     }
-
     @Override
     public void setOp(boolean value) {
-        consoleSender.setOp(value);  // Set the operator status for the console sender
+        consoleSender.setOp(value);
     }
-
-    // Remove the @Override annotation, because it's not part of the CommandSender interface
     public ConsoleCommandSender getConsoleSender() {
-        return consoleSender;  // Return the original console sender
+        return consoleSender;
     }
-
     public String getOutput() {
-        return outputStream.toString();  // Get the captured output from the console
+        return outputStream.toString();
     }
-
     public void resetOutput() {
-        outputStream.reset();  // Reset the captured output
+        outputStream.reset();
     }
-
     @Override
     public boolean isPermissionSet(@NotNull String name) {
-        return consoleSender.isPermissionSet(name);  // Check permission for the name
+        return consoleSender.isPermissionSet(name);
     }
-
     @Override
     public boolean isPermissionSet(@NotNull Permission permission) {
-        return consoleSender.isPermissionSet(permission);  // Check permission for the Permission object
+        return consoleSender.isPermissionSet(permission);
     }
-
     @Override
     public boolean hasPermission(@NotNull String name) {
-        return consoleSender.hasPermission(name);  // Check if the console sender has the permission by name
+        return consoleSender.hasPermission(name);
     }
-
     @Override
     public boolean hasPermission(@NotNull Permission permission) {
-        return consoleSender.hasPermission(permission);  // Check if the console sender has the permission
+        return consoleSender.hasPermission(permission);
     }
-
     @Override
     public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {
-        return consoleSender.addAttachment(plugin, name, value);  // Add a permission attachment
+        return consoleSender.addAttachment(plugin, name, value);
     }
-
     @Override
     public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin) {
-        return consoleSender.addAttachment(plugin);  // Add a permission attachment without a name/value pair
+        return consoleSender.addAttachment(plugin);
     }
-
     @Override
     public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value, int ticks) {
-        return consoleSender.addAttachment(plugin, name, value, ticks);  // Add a permission attachment with a timeout
+        return consoleSender.addAttachment(plugin, name, value, ticks);
     }
-
     @Override
     public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
-        return consoleSender.addAttachment(plugin, ticks);  // Add a permission attachment with a timeout
+        return consoleSender.addAttachment(plugin, ticks);
     }
-
     @Override
     public void removeAttachment(@NotNull PermissionAttachment attachment) {
-        consoleSender.removeAttachment(attachment);  // Remove a permission attachment
+        consoleSender.removeAttachment(attachment);
     }
-
     @Override
     public void recalculatePermissions() {
-        consoleSender.recalculatePermissions();  // Recalculate the permissions for the console sender
+        consoleSender.recalculatePermissions();
     }
-
     @Override
     public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
-        return consoleSender.getEffectivePermissions();  // Return the effective permissions for the console sender
+        return consoleSender.getEffectivePermissions();
     }
 }
